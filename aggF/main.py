@@ -322,9 +322,8 @@ def plot_aggF_errs(
         #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
         
         
-        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True)
-        
-        return
+        #ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True)
+ 
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
@@ -334,27 +333,14 @@ def plot_aggF_errs(
         #xmean RL values per AggLevel
         rl_dxcol = pd.read_pickle(fp_d['rl_dxcol'])        
         mdex = rl_dxcol.columns        
-        vid_l = list(mdex.unique('df_id'))
+        #vid_l = list(mdex.unique('df_id'))
         
         #function meta
-        vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=True) #vfunc data
-        
-        """
-        vid_df.to_csv(os.path.join(ses.out_dir, 'vid_df.csv'))
-        view(vid_df)
-        
-        vid_df.drop_duplicates('model_id').to_csv(os.path.join(ses.out_dir, 'vid_df_models.csv'))
-        """
+        vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')),write=False, write_model_summary=True) #vfunc data
+ 
         
         log.info('loaded %i models from %i libraries'%(len(vid_l), len(vid_df['model_id'].unique())))
-        
-
  
-        
-        
-                
- 
-        return
         #=======================================================================
         # compute deltas
         #=======================================================================
@@ -369,18 +355,25 @@ def plot_aggF_errs(
             pd.MultiIndex.from_frame(vid_df['model_id'].reset_index())
             )
         
+        #get model ids of interest from function list
+        df = serx.index.to_frame()
+        mid_l = df[df['df_id'].isin(vid_l)]['model_id'].unique()
         #=======================================================================
         # plot deltas
         #=======================================================================
         
         #serx = serx.drop(3, level='model_id')
         """color map can only support 8"""
-        serx = serx.loc[idx[:,:,:,:,[6, 16, 17, 27, 37, 44]]]
+        serx = serx.loc[idx[:,:,:,:,
+                            mid_l
+                            #[6, 16, 17, 27, 37, 44]
+                            ]]
         log.info('for models\n    %s'%serx.index.unique('model_id'))
         
         
         ses.plot_matrix_rlDelta_xb(serx)
 
+        return
         #=======================================================================
         # error area---------
         #=======================================================================

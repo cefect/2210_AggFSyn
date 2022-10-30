@@ -332,7 +332,10 @@ class Plot_rlDelta_xb(object):
                 xar, yar = gsx1.index.get_level_values(map_d['x']).values, gsx1.values
  
                 ax.plot(xar, yar, color=color_d[gk1[0]],label=None,zorder=1,
-                        **{'linestyle':'solid', 'marker':None, 'markersize':7, 'alpha':0.4, 'linewidth':0.2}
+                        **{'linestyle':'none','linewidth':0.1,
+                            #'linestyle': (0, (1, 30)), 
+                            'marker':'.','markersize':2,'markeredgewidth':0.0,
+                            'alpha':0.2, }
                         )
                 
             #===================================================================
@@ -341,8 +344,13 @@ class Plot_rlDelta_xb(object):
             for gk1, gsx1 in gsx0.groupby(level=map_d['color']):
                 ser = gsx1.groupby('xmean').mean()
                 xar, yar = ser.index.values, ser.values
-                ax.plot(xar, yar, color=color_d[gk1],label=gk1,zorder=2,
-                        **{'linestyle':'solid', 'marker':None, 'markersize':7, 'alpha':0.9, 'linewidth':1.0}
+                ax.plot(xar, yar,label=gk1,zorder=2,
+                        **{'linestyle':'solid', 
+                           'marker':'o', 'markersize':3, 'fillstyle':'none',
+                           'markeredgecolor':color_d[gk1],'markeredgewidth':0.5,
+                           'alpha':1.0, 
+                           'linewidth':1.0,'linestyle':'none'
+                            }
                         )
                 
         #=======================================================================
