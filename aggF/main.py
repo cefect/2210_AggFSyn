@@ -322,8 +322,8 @@ def plot_aggF_errs(
         #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
         
         
-        #ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True)
- 
+        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
+        plt.close('all')
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
@@ -371,9 +371,10 @@ def plot_aggF_errs(
         log.info('for models\n    %s'%serx.index.unique('model_id'))
         
         
-        ses.plot_matrix_rlDelta_xb(serx)
+        ses.plot_matrix_rlDelta_xb(serx, figsize=(17 * cm, 11 * cm),)
 
-        return
+
+        plt.close('all')
         #=======================================================================
         # error area---------
         #=======================================================================
@@ -397,20 +398,20 @@ def plot_aggF_errs(
         # plot
         #=======================================================================
         
-        ses.plot_matrix_rlDelta_xb(serx)
+        #ses.plot_matrix_rlDelta_xb(serx)
         #=======================================================================
         # # set of box plots for area errors, on different groups
         #======================================================================= 
         #get_eA_box_fig()
         ses.plot_eA_box(dxcol=errArea_dxcol.loc[['total'], :], vid_df=vid_df,
                         grp_colns=['model_id'],
-                        figsize=(17 * cm, 12 * cm),
+                        figsize=(17 * cm, 11 * cm),
                         sharex='all', sharey='all', add_subfigLabel=True, set_ax_title=False,
                         ylab = '$e_{total}$',
                         ylims=(-21, 21),
                         )
         
- 
+        plt.close('all')
         
         
  
@@ -422,10 +423,12 @@ def plot_aggF_errs(
         #=======================================================================
         # calc some stats and write to xls
         
-        ses.run_err_stats(dxcol = errArea_dxcol, vid_df=vid_df)
-        out_dir = ses.out_dir
+        #=======================================================================
+        # ses.run_err_stats(dxcol = errArea_dxcol, vid_df=vid_df)
+        # out_dir = ses.out_dir
+        #=======================================================================
         
-    return out_dir
+    return 
         
 
 

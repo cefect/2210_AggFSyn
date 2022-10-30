@@ -44,7 +44,7 @@ class Plot_funcs_synthX(object):
             
     def plot_matrix_funcs_synthX(self, 
                                  dx,
-                                 f_serx=None,
+                                 f_serx=None,figsize=None,
                                  output_fig_kwargs=dict(),
                                  **kwargs):
         """plot functions and aggregated RL values"""
@@ -52,7 +52,7 @@ class Plot_funcs_synthX(object):
         log, tmp_dir, out_dir, _, _, write = self._func_setup('p_fs_rlVx', **kwargs)
         
         #relative loss plots mean plots
-        fig, ax_d = self.get_matrix_lines(dx['mean'])
+        fig, ax_d = self.get_matrix_lines(dx['mean'], figsize=figsize)
         
         #add quantiles ranges
         self.add_q_fills(fig, ax_d, dx.drop('mean', axis=1))
@@ -88,8 +88,9 @@ class Plot_funcs_synthX(object):
         
         
     def get_matrix_lines(self,serx,
+                         figsize=None,
                  map_d={'row':'df_id', 'col':'xvar', 'color':'aggLevel', 'x':'xmean'},
-               matrix_kwargs=dict(figsize=(17 * cm, 17 * cm), set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
+               matrix_kwargs=dict(set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
                
                colorMap = 'cool', 
                output_fig_kwargs=dict(),
@@ -119,7 +120,7 @@ class Plot_funcs_synthX(object):
  
         fig, ax_d = self.get_matrix_fig(keys_all_d['row'], keys_all_d['col'], 
                                     sharey='all',sharex='all',  
-                                    logger=log, **matrix_kwargs)
+                                    logger=log, figsize=figsize, **matrix_kwargs)
         
         #colors
         color_d = self._get_color_d(map_d['color'], keys_all_d['color'], colorMap=colorMap)
@@ -263,8 +264,9 @@ class Plot_funcs_synthX(object):
         
 class Plot_rlDelta_xb(object):
     def plot_matrix_rlDelta_xb(self,serx,
+                               figsize=None,
                                map_d={'row':'aggLevel', 'col':'xvar', 'color':'model_id', 'x':'xmean'},
-                               matrix_kwargs=dict(figsize=(17 * cm, 17 * cm), set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
+                               matrix_kwargs=dict( set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
                                
                                colorMap = 'Dark2',
                                #plot_kwargs_lib=None,
@@ -295,7 +297,7 @@ class Plot_rlDelta_xb(object):
         plt.close('all') 
  
         fig, ax_d = self.get_matrix_fig(keys_all_d['row'], keys_all_d['col'], 
-                                    sharey='all',sharex='all',  
+                                    sharey='all',sharex='all',  figsize=figsize,
                                     logger=log, **matrix_kwargs)
         
         #colors
@@ -323,7 +325,7 @@ class Plot_rlDelta_xb(object):
             ax = ax_d[gk0[0]][gk0[1]]
             keys_d = dict(zip(levels, gk0))
             
- 
+            ax.axhline(0.0, color='black', linestyle='dashed', linewidth=0.1, zorder=0)
             #===================================================================
             # loop each df_id series (faint)
             #===================================================================
@@ -334,8 +336,8 @@ class Plot_rlDelta_xb(object):
                 ax.plot(xar, yar, color=color_d[gk1[0]],label=None,zorder=1,
                         **{'linestyle':'none','linewidth':0.1,
                             #'linestyle': (0, (1, 30)), 
-                            'marker':'.','markersize':2,'markeredgewidth':0.0,
-                            'alpha':0.2, }
+                            'marker':'o','markersize':2,'markeredgewidth':0.1,'fillstyle':'none',
+                            'alpha':0.1, }
                         )
                 
             #===================================================================
@@ -346,7 +348,7 @@ class Plot_rlDelta_xb(object):
                 xar, yar = ser.index.values, ser.values
                 ax.plot(xar, yar,label=gk1,zorder=2,
                         **{'linestyle':'solid', 
-                           'marker':'o', 'markersize':3, 'fillstyle':'none',
+                           'marker':'o', 'markersize':4.0, 'fillstyle':'none',
                            'markeredgecolor':color_d[gk1],'markeredgewidth':0.5,
                            'alpha':1.0, 
                            'linewidth':1.0,'linestyle':'none'
@@ -364,6 +366,13 @@ class Plot_rlDelta_xb(object):
                 if col_key == keys_all_d['col'][0]:
                     ax.set_ylabel('$RL_{s2}-RL_{s1}$ (frac)')
                     
+                #first row
+                if row_key==keys_all_d['row'][0]:
+                    
+                    #last col
+                    if col_key == keys_all_d['col'][-1]:
+                        ax.legend(loc='lower right')
+                    
                     
                 #last row
                 if row_key==keys_all_d['row'][-1]:
@@ -378,11 +387,14 @@ class Plot_rlDelta_xb(object):
         #=======================================================================
         # legend
         #=======================================================================
-        handles, labels = ax.get_legend_handles_labels() #get legned info 
-        fig.legend( handles, labels, ncols=len(labels), loc='upper right', 
-                     borderaxespad=0.,
-                    #mode='expand',
-                    bbox_to_anchor=(1.0,0.75))
+        
+        #=======================================================================
+        # handles, labels = ax.get_legend_handles_labels() #get legned info 
+        # fig.legend( handles, labels, ncols=len(labels), loc='upper right', 
+        #              borderaxespad=0.,
+        #             #mode='expand',
+        #             bbox_to_anchor=(1.0,0.75))
+        #=======================================================================
         
         """not working.. not sure how to adjust the subplots
         fig.subplots_adjust(top=0.2)"""
