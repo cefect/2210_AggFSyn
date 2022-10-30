@@ -254,7 +254,7 @@ def run_aggErr1(#agg error per function
         #=======================================================================
         vid_df = ses.build_vid_df(vid_l=vid_l, write=False) #vfunc data
         vf_d = ses.build_vf_d(vid_df=vid_df) #vfunc workers
-        rl_xmDisc_dxcol = ses.build_rl_xmDisc_dxcol(vf_d=vf_d, **rl_xmDisc_dxcol_d) #aggregation erros mean-discretized for all vfuncs
+        rl_xmDisc_dxcol = ses.build_rl_xmDisc_dxcol(vf_d=vf_d, **rl_xmDisc_dxcol_d) #RL mean-discretized for all vfuncs
         
         
         #=======================================================================
@@ -293,6 +293,39 @@ def plot_aggF_errs(
         #=======================================================================
         
         #=======================================================================
+        # dfunc vs. agg RL------
+        #=======================================================================
+        #=======================================================================
+        # load and prep synthetic loss data
+        #=======================================================================
+        vid_l = [798,811, 49]
+        
+        if not 'rl_xm_stats_dxcol' in fp_d:
+            dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
+        else:
+            dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol'])
+
+        
+        #=======================================================================
+        # #load vfuncs
+        #=======================================================================
+        if not 'f_serx' in fp_d:
+            f_serx = ses.load_vfunc_ddf(vid_l)
+        else:
+            f_serx = pd.read_pickle(fp_d['f_serx'])
+
+        
+ 
+        #=======================================================================
+        # plot
+        #=======================================================================
+        #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
+        
+        
+        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True)
+        
+        return
+        #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
         #=======================================================================
@@ -315,6 +348,13 @@ def plot_aggF_errs(
         
         log.info('loaded %i models from %i libraries'%(len(vid_l), len(vid_df['model_id'].unique())))
         
+
+ 
+        
+        
+                
+ 
+        return
         #=======================================================================
         # compute deltas
         #=======================================================================
@@ -340,9 +380,7 @@ def plot_aggF_errs(
         
         
         ses.plot_matrix_rlDelta_xb(serx)
-        
- 
-        return
+
         #=======================================================================
         # error area---------
         #=======================================================================
@@ -503,9 +541,11 @@ def all_r0_plot(**kwargs):
         run_name='r0',
         fp_d = {        
                 'rl_xmDisc_dxcol':  r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_all\20220205\working\aggErr1_r2_0104_rl_xmDisc_dxcol.pickle',
-                'rl_xmDisc_xvals':  r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_all\20220205\working\aggErr1_r2_0104_rl_xmDisc_xvals.pickle',
+                #'rl_xmDisc_xvals':  r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_all\20220205\working\aggErr1_r2_0104_rl_xmDisc_xvals.pickle',
                 'rl_dxcol':         r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_all\20220205\working\aggErr1_r3_0104_rl_dxcol.pickle',
-                'errArea_dxcol':    r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0\20221026\agg1F_r0_1026_model_metrics.pickle'
+                'errArea_dxcol':    r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0\20221026\agg1F_r0_1026_model_metrics.pickle',
+                'rl_xm_stats_dxcol':r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0\20221028\agg1F_r0_1028_rl_xm_stats_dxcol.pkl',
+                'f_serx':           r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0\20221028\agg1F_r0_1028_vfunc_df.pkl',
             },
                 
         **kwargs)

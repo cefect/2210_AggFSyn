@@ -88,7 +88,7 @@ class AggSession1(BaseSession):
     
     def build_df_d(self, #load the vfunc files
                 fp=r'C:\LS\09_REPOS\02_JOBS\2112_Agg\figueiredo2018\cef\csv_dump.xls',
-                dkey=None, logger=None, write=None,
+                dkey='df_d', logger=None, write=None,
                 ):
         
         #=======================================================================

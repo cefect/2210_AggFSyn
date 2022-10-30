@@ -20,8 +20,8 @@ from hp.oop import Basic
 from hp.pd import view, get_bx_multiVal
 from hp.plot import Plotr
 
-from aggF.coms.scripts import Vfunc
-from aggF.coms.scripts import AggSession1
+from agg.coms.scripts import Vfunc
+from agg.coms.scripts import AggSession1
 
 idx = pd.IndexSlice
 
@@ -202,7 +202,27 @@ class AggSession1F(Plotr, AggSession1):
                  #get_rl_xmDisc control
                  **kwargs
                  ):
-        """aggregation erros mean-discretized for all vfuncs
+        """synthetic depth generation and function calculation 
+        mean-discretized for all vfuncs
+        
+        iterate function
+            iterate xmean. get_rl_xmDisc()
+                calc_agg_imp()
+        
+        Returns
+        ----------
+        pd.DataFrame: rl_xmDisc_dxcol
+            dxcol of synthetic depths and resulting RLs
+                columns
+                    df_id: function id
+                    xmean: mean for synthetic depth distrubution
+                    xvar: variance for synthetic depth distrubtion
+                    aggLevel: aggregation size
+                    vars: water depth (x) or relative loss (y)
+        
+        
+ 
+        
         """
 
         if logger is None: logger=self.logger        
@@ -252,17 +272,27 @@ class AggSession1F(Plotr, AggSession1):
                               names=[self.vidnm] + list(res_lib[vfunc.vid].columns.names))
             
         self.ofp_d[dkey] = self.write_dxcol(dxcol, dkey, logger=log)
-        
+        """
+        view(dxcol.head(100))
+        """
         
         #=======================================================================
         # random xvals
         #=======================================================================
-        """writing these so we can plot later"""
-        dkey = 'rl_xmDisc_xvals'
-        xvals_dxcol = pd.concat(xvals_lib, axis=1, 
-                              names=[self.vidnm] + list(xvals_lib[vfunc.vid].columns.names))
-        
-        self.ofp_d[dkey] = self.write_dxcol(xvals_dxcol, dkey, logger=log)
+        #=======================================================================
+        # #not sure what I was thinking... these are cocntained in the 'wd' column of the above
+        # """writing these so we can plot later"""
+        # dkey = 'rl_xmDisc_xvals'
+        # xvals_dxcol = pd.concat(xvals_lib, axis=1, 
+        #                       names=[self.vidnm] + list(xvals_lib[vfunc.vid].columns.names))
+        # 
+        # self.ofp_d[dkey] = self.write_dxcol(xvals_dxcol, dkey, logger=log)
+        # """
+        # view(xvals_dxcol.head(100))
+        # 
+        # xvals_dxcol[796].loc[:, idx[0.0, 0.1]].sort_values()
+        # """
+        #=======================================================================
  
         #=======================================================================
         # error check
@@ -2084,7 +2114,7 @@ class AggSession1F(Plotr, AggSession1):
                         logger=None,
                           **kwargs):
         """
-        calculate rloss at each xmean
+        xmeans iteration wrapper for calc_agg_imp()
         """
 
         #=======================================================================
