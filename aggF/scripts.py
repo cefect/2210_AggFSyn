@@ -20,8 +20,8 @@ from hp.oop import Basic
 from hp.pd import view, get_bx_multiVal
 from hp.plot import Plotr
 
-from agg.coms.scripts import Vfunc
-from agg.coms.scripts import AggSession1
+from aggF.coms.scripts import Vfunc
+from aggF.coms.scripts import AggSession1
 
 idx = pd.IndexSlice
 
