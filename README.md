@@ -4,3 +4,5 @@ Scripts for computing potential flood damage function error from aggregation aga
 
 ICFM9 work
  
+## Submodule
+git submodule add -b 2210_AggFSyn https://github.com/cefect/coms.git
