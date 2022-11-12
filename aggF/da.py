@@ -269,14 +269,16 @@ class Plot_rlDelta_xb(object):
                                matrix_kwargs=dict( set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
                                
                                colorMap = 'Dark2',
+                               color_d=None,
                                #plot_kwargs_lib=None,
                                #plot_kwargs={'linestyle':'solid', 'marker':None, 'markersize':7, 'alpha':0.8, 'linewidth':0.5},
+                               output_format='png', #too slow otherwise
                                output_fig_kwargs=dict(),
                                
                                **kwargs):
         """matrix plot of all functions rlDelta vs. xb"""
         
-        log, tmp_dir, out_dir, _, _, write = self._func_setup('p_rlD_sb', **kwargs)
+        log, tmp_dir, out_dir, _, _, write = self._func_setup('rlErr_xb', **kwargs)
         
         #=======================================================================
         # extract data
@@ -301,7 +303,8 @@ class Plot_rlDelta_xb(object):
                                     logger=log, **matrix_kwargs)
         
         #colors
-        color_d = self._get_color_d(map_d['color'], keys_all_d['color'], colorMap=colorMap)
+        if color_d is None:
+            color_d = self._get_color_d(map_d['color'], keys_all_d['color'], colorMap=colorMap)
         
         
         #plot kwargs
@@ -349,7 +352,7 @@ class Plot_rlDelta_xb(object):
                 ax.plot(xar, yar,label=gk1,zorder=2,
                         **{'linestyle':'solid', 
                            'marker':'o', 'markersize':4.0, 'fillstyle':'none',
-                           'markeredgecolor':color_d[gk1],'markeredgewidth':0.5,
+                           'markeredgecolor':color_d[gk1],'markeredgewidth':0.7,
                            'alpha':1.0, 
                            'linewidth':1.0,'linestyle':'none'
                             }
@@ -364,14 +367,14 @@ class Plot_rlDelta_xb(object):
  
                 #first col
                 if col_key == keys_all_d['col'][0]:
-                    ax.set_ylabel('$RL_{s2}-RL_{s1}$ (frac)')
+                    ax.set_ylabel('$RL_{s2}-RL_{s1}$ (\%)')
                     
                 #first row
                 if row_key==keys_all_d['row'][0]:
                     
                     #last col
                     if col_key == keys_all_d['col'][-1]:
-                        ax.legend(loc='lower right')
+                        ax.legend(loc='lower right', title='model id')
                     
                     
                 #last row
@@ -403,7 +406,8 @@ class Plot_rlDelta_xb(object):
         #=======================================================================
         if write:
             return self.output_fig(fig, 
-                                   ofp=os.path.join(out_dir, f'rlErr_xb.'+self.output_format), 
+                                   fmt=output_format,dpi=600,
+                                   ofp=os.path.join(out_dir, f'rlErr_xb.'+output_format), 
                                    logger=log, **output_fig_kwargs)
         else:
             return fig, ax_d

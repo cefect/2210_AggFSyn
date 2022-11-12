@@ -56,8 +56,9 @@ logging.basicConfig(
 #===============================================================================
 output_format='pdf'
 usetex=True
-if usetex:
-    os.environ['PATH'] += R";C:\Users\cefect\AppData\Local\Programs\MiKTeX\miktex\bin\x64"
+add_stamp=False
+ 
+os.environ['PATH'] += r";C:\Users\cefect\AppData\Local\Programs\MiKTeX\miktex\bin\x64"
 
 cm = 1/2.54
 import matplotlib
@@ -275,7 +276,7 @@ def plot_aggF_errs(
         **kwargs):
     
     with Session_AggF(
-        logger = logging.getLogger('r'),output_format=output_format,
+        logger = logging.getLogger('r'),output_format=output_format,add_stamp=add_stamp,
         **kwargs) as ses:
         
         ses.output_format
@@ -322,7 +323,7 @@ def plot_aggF_errs(
         #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
         
         
-        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
+        #ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
         plt.close('all')
         #=======================================================================
         # rl mean vs. xb--------
@@ -371,9 +372,13 @@ def plot_aggF_errs(
         log.info('for models\n    %s'%serx.index.unique('model_id'))
         
         
-        ses.plot_matrix_rlDelta_xb(serx, figsize=(17 * cm, 11 * cm),)
+        ses.plot_matrix_rlDelta_xb(serx, figsize=(17 * cm, 11 * cm),
+                                   color_d={3: '#d95f02', 37: '#1b9e77'}, #divergent for colobrlind
+                                   )
+        
+        return
 
-
+ 
         plt.close('all')
         #=======================================================================
         # error area---------
@@ -407,7 +412,7 @@ def plot_aggF_errs(
                         grp_colns=['model_id'],
                         figsize=(17 * cm, 11 * cm),
                         sharex='all', sharey='all', add_subfigLabel=True, set_ax_title=False,
-                        ylab = '$e_{total}$',
+                        ylab = '$e$',
                         ylims=(-21, 21),
                         )
         
