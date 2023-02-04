@@ -49,7 +49,7 @@ class Plot_funcs_synthX(object):
                                  **kwargs):
         """plot functions and aggregated RL values"""
         
-        log, tmp_dir, out_dir, _, _, write = self._func_setup('p_fs_rlVx', **kwargs)
+        log, tmp_dir, out_dir, ofp, _, write = self._func_setup('plot_matrix_funcs_synthX',ext='.'+self.output_format, **kwargs)
         
         #relative loss plots mean plots
         fig, ax_d = self.get_matrix_lines(dx['mean'], figsize=figsize)
@@ -75,18 +75,15 @@ class Plot_funcs_synthX(object):
         # output
         #=======================================================================
         if write:
+            
             return self.output_fig(fig, 
-                                   ofp=os.path.join(out_dir, f'p_fs_rlVx.'+self.output_format), 
+                                   #ofp=os.path.join(out_dir, f'p_fs_rlVx.'+self.output_format), 
+                                   ofp=ofp,
                                    logger=log, **output_fig_kwargs)
         else:
             return fig, ax_d
         
-        """
-        plt.show()
-        """
-        
-        
-        
+ 
     def get_matrix_lines(self,serx,
                          figsize=None,
                  map_d={'row':'df_id', 'col':'xvar', 'color':'aggLevel', 'x':'xmean'},
@@ -278,7 +275,7 @@ class Plot_rlDelta_xb(object):
                                **kwargs):
         """matrix plot of all functions rlDelta vs. xb"""
         
-        log, tmp_dir, out_dir, _, _, write = self._func_setup('rlErr_xb', **kwargs)
+        log, tmp_dir, out_dir, _, _, write = self._func_setup('plot_matrix_rlDelta_xb', **kwargs)
         
         #=======================================================================
         # extract data
