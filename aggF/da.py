@@ -46,6 +46,7 @@ class Plot_funcs_synthX(object):
                                  dx,
                                  f_serx=None,figsize=None,
                                  output_fig_kwargs=dict(),
+                                 legend=False,
                                  **kwargs):
         """plot functions and aggregated RL values"""
         
@@ -64,12 +65,12 @@ class Plot_funcs_synthX(object):
         #=======================================================================
         # #add legend
         #=======================================================================
-        
-        handles, labels = ax_d[49][1.0].get_legend_handles_labels() #get legned info 
-        fig.legend( handles, labels, ncols=2, loc='upper right', 
-                     borderaxespad=0.,
-                    #mode='expand',
-                    bbox_to_anchor=(1.0,0.98))
+        if legend:
+            handles, labels = ax_d[dx.index.unique(0)[0]][1.0].get_legend_handles_labels() #get legned info 
+            fig.legend( handles, labels, ncols=2, loc='upper right', 
+                         borderaxespad=0.,
+                        #mode='expand',
+                        bbox_to_anchor=(1.0,0.98))
         
         #=======================================================================
         # output

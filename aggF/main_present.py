@@ -59,20 +59,17 @@ plt.style.use('default')
  
 #font
 font_size=20
-matplotlib.rc('font', **{
-        'family' : 'sans-serif', 
-        'weight' : 'Verdana',
-        'size'   : font_size})
+matplotlib.rc('font', **{'family' : 'sans-serif','sans-serif':'Tahoma','weight' : 'normal','size':12})
  
  
 for k,v in {
     'axes.titlesize':font_size,
     'axes.labelsize':font_size,
-    'xtick.labelsize':font_size,
-    'ytick.labelsize':font_size,
+    'xtick.labelsize':12,
+    'ytick.labelsize':12,
     'figure.titlesize':12,
     'figure.autolayout':False,
-    'figure.figsize':(17 * cm, 10 * cm),
+    'figure.figsize':(32 * cm, 14 * cm),
     'legend.title_fontsize':'large',
     'text.usetex':usetex,
     }.items():
@@ -288,12 +285,16 @@ def plot_aggF_errs(
         #=======================================================================
         # load and prep synthetic loss data
         #=======================================================================
-        vid_l = [798,811, 49]
+        vid_l = [
+                #798,
+                 811, 
+                 #49,
+                 ]
         
         if not 'rl_xm_stats_dxcol' in fp_d:
             dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
         else:
-            dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol'])
+            dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol']).loc[idx[vid_l, :, :, :], :]
 
         
         #=======================================================================
@@ -302,7 +303,7 @@ def plot_aggF_errs(
         if not 'f_serx' in fp_d:
             f_serx = ses.load_vfunc_ddf(vid_l)
         else:
-            f_serx = pd.read_pickle(fp_d['f_serx'])
+            f_serx = pd.read_pickle(fp_d['f_serx']).loc[idx[vid_l, :]]
 
         
  
@@ -312,9 +313,11 @@ def plot_aggF_errs(
         #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
         
         
-        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
+        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, 
+                                     figsize=(32 * cm, 7 * cm)
+                                     )
         plt.close('all')
-        
+        return
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
