@@ -240,6 +240,10 @@ def run_aggErr1(#agg error per function
         # retrieve for subsetting
         #=======================================================================
         vid_df = ses.build_vid_df(vid_l=vid_l, write=False) #vfunc data
+        """
+        view(vid_df)
+        vid_df.to_csv(r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_present\20230204\function_meta.csv')
+        """
         vf_d = ses.build_vf_d(vid_df=vid_df) #vfunc workers
         rl_xmDisc_dxcol = ses.build_rl_xmDisc_dxcol(vf_d=vf_d, **rl_xmDisc_dxcol_d) #RL mean-discretized for all vfuncs
         
@@ -256,6 +260,67 @@ def run_aggErr1(#agg error per function
         out_dir = ses.out_dir
         
     return out_dir
+
+
+def _run_funcs_synthX(ses, fp_d, vid_l):
+    """todo: add this to the class"""
+    if not 'rl_xm_stats_dxcol' in fp_d:
+        dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
+    else:
+        dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol']).loc[idx[vid_l, :, :, :], :]
+#=======================================================================
+# #load vfuncs
+#=======================================================================
+    if not 'f_serx' in fp_d:
+        f_serx = ses.load_vfunc_ddf(vid_l)
+    else:
+        f_serx = pd.read_pickle(fp_d['f_serx']).loc[idx[vid_l, :]]
+#=======================================================================
+# plot
+#=======================================================================
+#vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
+    ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, 
+        figsize=(32 * cm, 7 * cm))
+    return  
+
+
+def _run_rlDelta_xb(ses, fp_d, vid_l):
+    log = ses.logger.getChild('rlDelta')
+    #=======================================================================
+# load
+#=======================================================================
+#xmean RL values per AggLevel
+    rl_dxcol = pd.read_pickle(fp_d['rl_dxcol'])
+    mdex = rl_dxcol.columns #vid_l = list(mdex.unique('df_id'))
+#function meta
+    vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')), write=False, write_model_summary=True) #vfunc data
+    log.info('loaded %i models from %i libraries' % (len(vid_l), len(vid_df['model_id'].unique())))
+#=======================================================================
+# compute deltas
+#=======================================================================
+    #get s1 base values
+    rl_s1_dxcol = rl_dxcol.loc[:, idx[:, :, 0]].droplevel('aggLevel', axis=1)
+    #get deltas
+    serx = rl_dxcol.subtract(rl_s1_dxcol).drop(0, level='aggLevel', axis=1).unstack()
+    #add model_id to idnex
+    serx.index = serx.index.join(
+        pd.MultiIndex.from_frame(vid_df['model_id'].reset_index()))
+    #get model ids of interesplot_matrix_funcs_synthXt from function list
+    df = serx.index.to_frame()
+    mid_l = df[df['df_id'].isin(vid_l)]['model_id'].unique()
+    #=======================================================================
+    # plot deltas
+    #=======================================================================
+ 
+    """color map can only support 8"""
+    serx = serx.loc[idx[:, :, :, :, 
+            mid_l]]
+            #[6, 16, 17, 27, 37, 44]
+    log.info('for models\n    %s' % serx.index.unique('model_id'))
+    ses.plot_matrix_rlDelta_xb(serx, 
+                               #figsize=(17 * cm, 11 * cm), 
+        color_d={3:'#d95f02', 37:'#1b9e77'}) #divergent for colobrlind
+    return rl_dxcol, serx, vid_df
 
 def plot_aggF_errs(
         fp_d={},
@@ -282,95 +347,25 @@ def plot_aggF_errs(
         #=======================================================================
         # dfunc vs. agg RL------
         #=======================================================================
-        #=======================================================================
-        # load and prep synthetic loss data
-        #=======================================================================
+ 
         vid_l = [
                 #798,
-                 811, 
-                 #49,
+                 #811, 
+                 49,
                  ]
         
-        if not 'rl_xm_stats_dxcol' in fp_d:
-            dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
-        else:
-            dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol']).loc[idx[vid_l, :, :, :], :]
-
-        
-        #=======================================================================
-        # #load vfuncs
-        #=======================================================================
-        if not 'f_serx' in fp_d:
-            f_serx = ses.load_vfunc_ddf(vid_l)
-        else:
-            f_serx = pd.read_pickle(fp_d['f_serx']).loc[idx[vid_l, :]]
-
-        
- 
-        #=======================================================================
-        # plot
-        #=======================================================================
-        #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
-        
-        
-        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, 
-                                     figsize=(32 * cm, 7 * cm)
-                                     )
+        #_run_funcs_synthX(ses, fp_d, vid_l)
         plt.close('all')
-        return
+         
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
-        #=======================================================================
-        # load        
-        #=======================================================================
-        #xmean RL values per AggLevel
-        rl_dxcol = pd.read_pickle(fp_d['rl_dxcol'])        
-        mdex = rl_dxcol.columns        
-        #vid_l = list(mdex.unique('df_id'))
-        
-        #function meta
-        vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')),write=False, write_model_summary=True) #vfunc data
- 
-        
-        log.info('loaded %i models from %i libraries'%(len(vid_l), len(vid_df['model_id'].unique())))
- 
-        #=======================================================================
-        # compute deltas
-        #=======================================================================
-        #get s1 base values
-        rl_s1_dxcol = rl_dxcol.loc[:, idx[:, :, 0]].droplevel('aggLevel', axis=1)
-        
-        #get deltas
-        serx = rl_dxcol.subtract(rl_s1_dxcol).drop(0, level='aggLevel', axis=1).unstack()
-        
-        #add model_id to idnex        
-        serx.index = serx.index.join(
-            pd.MultiIndex.from_frame(vid_df['model_id'].reset_index())
-            )
-        
-        #get model ids of interesplot_matrix_funcs_synthXt from function list
-        df = serx.index.to_frame()
-        mid_l = df[df['df_id'].isin(vid_l)]['model_id'].unique()
-        #=======================================================================
-        # plot deltas
-        #=======================================================================
-        
-        #serx = serx.drop(3, level='model_id')
-        """color map can only support 8"""
-        serx = serx.loc[idx[:,:,:,:,
-                            mid_l
-                            #[6, 16, 17, 27, 37, 44]
-                            ]]
-        log.info('for models\n    %s'%serx.index.unique('model_id'))
-        
-        
-        ses.plot_matrix_rlDelta_xb(serx, figsize=(17 * cm, 11 * cm),
-                                   color_d={3: '#d95f02', 37: '#1b9e77'}, #divergent for colobrlind
-                                   )
+        rl_dxcol, serx, vid_df = _run_rlDelta_xb(ses, fp_d, vid_l)
         
  
         plt.close('all')
+        
+        return
         #=======================================================================
         # error area---------
         #=======================================================================
@@ -547,6 +542,7 @@ def all_r0_plot(**kwargs):
 
 if __name__ == "__main__": 
     
+    #run_aggErr1(vid_l = [798,811,49])
     output=all_r0_plot()
     #output=all_r0()
     

@@ -46,7 +46,7 @@ class Plot_funcs_synthX(object):
                                  dx,
                                  f_serx=None,figsize=None,
                                  output_fig_kwargs=dict(),
-                                 legend=False,
+                                 legend=True,
                                  **kwargs):
         """plot functions and aggregated RL values"""
         
@@ -67,10 +67,12 @@ class Plot_funcs_synthX(object):
         #=======================================================================
         if legend:
             handles, labels = ax_d[dx.index.unique(0)[0]][1.0].get_legend_handles_labels() #get legned info 
-            fig.legend( handles, labels, ncols=2, loc='upper right', 
-                         borderaxespad=0.,
+            fig.legend( handles, labels, ncols=1, 
+                        loc='upper left', 
+                        #borderaxespad=0.,
                         #mode='expand',
-                        bbox_to_anchor=(1.0,0.98))
+                        bbox_to_anchor=(0.05,0.98),
+                        )
         
         #=======================================================================
         # output
@@ -88,7 +90,7 @@ class Plot_funcs_synthX(object):
     def get_matrix_lines(self,serx,
                          figsize=None,
                  map_d={'row':'df_id', 'col':'xvar', 'color':'aggLevel', 'x':'xmean'},
-               matrix_kwargs=dict(set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
+               matrix_kwargs=dict(set_ax_title=False, add_subfigLabel=False, fig_id=0, constrained_layout=False),
                
                colorMap = 'cool', 
                output_fig_kwargs=dict(),
@@ -276,7 +278,8 @@ class Plot_rlDelta_xb(object):
                                **kwargs):
         """matrix plot of all functions rlDelta vs. xb"""
         
-        log, tmp_dir, out_dir, _, _, write = self._func_setup('plot_matrix_rlDelta_xb', **kwargs)
+        log, tmp_dir, out_dir, ofp, _, write = self._func_setup(
+            'plot_matrix_rlDelta_xb', ext='.'+output_format, **kwargs)
         
         #=======================================================================
         # extract data
@@ -304,17 +307,7 @@ class Plot_rlDelta_xb(object):
         if color_d is None:
             color_d = self._get_color_d(map_d['color'], keys_all_d['color'], colorMap=colorMap)
         
-        
-        #plot kwargs
-        #=======================================================================
-        # """here we populate with blank kwargs to ensure every series has some kwargs"""
-        # if plot_kwargs_lib is None: plot_kwargs_lib=dict()
-        # for k in keys_all_d['color']:
-        #     if not k in plot_kwargs_lib:
-        #         plot_kwargs_lib[k] = plot_kwargs
-        #     else:
-        #         plot_kwargs_lib[k] = {**plot_kwargs, **plot_kwargs_lib[k]} #respects precedent
-        #=======================================================================
+ 
         #=======================================================================
         # loop and plot
         #=======================================================================
@@ -403,10 +396,7 @@ class Plot_rlDelta_xb(object):
         # output
         #=======================================================================
         if write:
-            return self.output_fig(fig, 
-                                   fmt=output_format,dpi=600,
-                                   ofp=os.path.join(out_dir, f'rlErr_xb.'+output_format), 
-                                   logger=log, **output_fig_kwargs)
+            return self.output_fig(fig, fmt=output_format,dpi=600,ofp=ofp,logger=log, **output_fig_kwargs)
         else:
             return fig, ax_d
                 
