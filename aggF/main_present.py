@@ -43,7 +43,7 @@ logging.basicConfig(
 # setup matplotlib----------
 #===============================================================================
 output_format='svg'
-usetex=False
+usetex=False #not working with font
 add_stamp=True
  
 os.environ['PATH'] += r";C:\Users\cefect\AppData\Local\Programs\MiKTeX\miktex\bin\x64"
@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt
 plt.style.use('default')
  
 #font
-font_size=20
+font_size=18
 matplotlib.rc('font', **{'family' : 'sans-serif','sans-serif':'Tahoma','weight' : 'normal','size':12})
  
  
@@ -284,43 +284,60 @@ def _run_funcs_synthX(ses, fp_d, vid_l):
     return  
 
 
-def _run_rlDelta_xb(ses, fp_d, vid_l):
+def _run_rlDelta_xb(ses, fp_d, vid_l, 
+                    aggLevel_l=[5, 100],):
     log = ses.logger.getChild('rlDelta')
     #=======================================================================
-# load
-#=======================================================================
-#xmean RL values per AggLevel
+    # load
+    #=======================================================================
+    # xmean RL values per AggLevel
     rl_dxcol = pd.read_pickle(fp_d['rl_dxcol'])
-    mdex = rl_dxcol.columns #vid_l = list(mdex.unique('df_id'))
-#function meta
-    vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')), write=False, write_model_summary=True) #vfunc data
+    mdex = rl_dxcol.columns  # vid_l = list(mdex.unique('df_id'))
+    
+    # function meta
+    vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')), write=False, write_model_summary=True)  # vfunc data
     log.info('loaded %i models from %i libraries' % (len(vid_l), len(vid_df['model_id'].unique())))
-#=======================================================================
-# compute deltas
-#=======================================================================
-    #get s1 base values
-    rl_s1_dxcol = rl_dxcol.loc[:, idx[:, :, 0]].droplevel('aggLevel', axis=1)
-    #get deltas
+    
+    #=======================================================================
+    # compute deltas
+    #=======================================================================
+    # get s1 base values
+    rl_s1_dxcol = rl_dxcol.loc[:, idx[:,:, 0]].droplevel('aggLevel', axis=1)
+    
+    # get deltas
     serx = rl_dxcol.subtract(rl_s1_dxcol).drop(0, level='aggLevel', axis=1).unstack()
-    #add model_id to idnex
+    
+    
+    
+    # add model_id to idnex
     serx.index = serx.index.join(
         pd.MultiIndex.from_frame(vid_df['model_id'].reset_index()))
-    #get model ids of interesplot_matrix_funcs_synthXt from function list
+    # get model ids of interesplot_matrix_funcs_synthXt from function list
     df = serx.index.to_frame()
     mid_l = df[df['df_id'].isin(vid_l)]['model_id'].unique()
+    
     #=======================================================================
     # plot deltas
     #=======================================================================
+    if aggLevel_l is None:
+        aggLevel_l = serx.index.unique('aggLevel').tolist()
  
     """color map can only support 8"""
-    serx = serx.loc[idx[:, :, :, :, 
+    #filter
+    serx_slice = serx.loc[idx[:,:,aggLevel_l,:,
             mid_l]]
-            #[6, 16, 17, 27, 37, 44]
-    log.info('for models\n    %s' % serx.index.unique('model_id'))
-    ses.plot_matrix_rlDelta_xb(serx, 
-                               #figsize=(17 * cm, 11 * cm), 
-        color_d={3:'#d95f02', 37:'#1b9e77'}) #divergent for colobrlind
-    return rl_dxcol, serx, vid_df
+            # [6, 16, 17, 27, 37, 44]
+    log.info('for models\n    %s' % serx_slice.index.unique('model_id'))
+    
+    
+    #plot
+    ses.plot_matrix_rlDelta_xb(serx_slice,
+                               # figsize=(17 * cm, 11 * cm), 
+        color_d={3:'#d95f02', 37:'#1b9e77'},
+        legend=True, output_format='svg',
+        )  # divergent for colobrlind
+    return rl_dxcol, serx_slice, vid_df
+
 
 def plot_aggF_errs(
         fp_d={},
@@ -349,7 +366,7 @@ def plot_aggF_errs(
         #=======================================================================
  
         vid_l = [
-                #798,
+                798,
                  #811, 
                  49,
                  ]

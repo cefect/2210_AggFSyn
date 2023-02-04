@@ -266,18 +266,19 @@ class Plot_rlDelta_xb(object):
     def plot_matrix_rlDelta_xb(self,serx,
                                figsize=None,
                                map_d={'row':'aggLevel', 'col':'xvar', 'color':'model_id', 'x':'xmean'},
-                               matrix_kwargs=dict( set_ax_title=False, add_subfigLabel=True, fig_id=0, constrained_layout=False),
+                               matrix_kwargs=dict( set_ax_title=False, add_subfigLabel=False, fig_id=0, constrained_layout=False),
                                
                                colorMap = 'Dark2',
                                color_d=None,
                                #plot_kwargs_lib=None,
                                #plot_kwargs={'linestyle':'solid', 'marker':None, 'markersize':7, 'alpha':0.8, 'linewidth':0.5},
-                               output_format='png', #too slow otherwise
-                               output_fig_kwargs=dict(),
-                               
+                               output_format=None, #too slow otherwise
+                               output_fig_kwargs=dict(transparent=False),
+                               legend=True,
+                               ylims=(-20, 20),
                                **kwargs):
         """matrix plot of all functions rlDelta vs. xb"""
-        
+        if output_format is None: output_format=self.output_format
         log, tmp_dir, out_dir, ofp, _, write = self._func_setup(
             'plot_matrix_rlDelta_xb', ext='.'+output_format, **kwargs)
         
@@ -319,7 +320,7 @@ class Plot_rlDelta_xb(object):
             ax = ax_d[gk0[0]][gk0[1]]
             keys_d = dict(zip(levels, gk0))
             
-            ax.axhline(0.0, color='black', linestyle='dashed', linewidth=0.1, zorder=0)
+            ax.axhline(0.0, color='black', linestyle='dashed', linewidth=1.0, zorder=0)
             #===================================================================
             # loop each df_id series (faint)
             #===================================================================
@@ -331,7 +332,7 @@ class Plot_rlDelta_xb(object):
                         **{'linestyle':'none','linewidth':0.1,
                             #'linestyle': (0, (1, 30)), 
                             'marker':'o','markersize':2,'markeredgewidth':0.1,'fillstyle':'none',
-                            'alpha':0.1, }
+                            'alpha':0.3, }
                         )
                 
             #===================================================================
@@ -349,6 +350,12 @@ class Plot_rlDelta_xb(object):
                             }
                         )
                 
+            #===================================================================
+            # set ylims
+            #===================================================================
+            if not ylims is None:
+                ax.set_ylim(ylims)
+                
         #=======================================================================
         # post format
         #=======================================================================
@@ -358,14 +365,17 @@ class Plot_rlDelta_xb(object):
  
                 #first col
                 if col_key == keys_all_d['col'][0]:
-                    ax.set_ylabel('$RL_{s2}-RL_{s1}$ (\%)')
+                    ax.set_ylabel('$RL_{s2}-RL_{s1}$ (%)')
                     
                 #first row
                 if row_key==keys_all_d['row'][0]:
-                    
-                    #last col
-                    if col_key == keys_all_d['col'][-1]:
-                        ax.legend(loc='lower right', title='model id')
+                    pass
+                    #===========================================================
+                    # #last col
+                    # if col_key == keys_all_d['col'][-1]:
+                    #     if legend:
+                    #         ax.legend(loc='lower right', title='model id')
+                    #===========================================================
                     
                     
                 #last row
@@ -381,14 +391,14 @@ class Plot_rlDelta_xb(object):
         #=======================================================================
         # legend
         #=======================================================================
-        
-        #=======================================================================
-        # handles, labels = ax.get_legend_handles_labels() #get legned info 
-        # fig.legend( handles, labels, ncols=len(labels), loc='upper right', 
-        #              borderaxespad=0.,
-        #             #mode='expand',
-        #             bbox_to_anchor=(1.0,0.75))
-        #=======================================================================
+        if legend:
+            handles, labels = ax.get_legend_handles_labels() #get legned info 
+            fig.legend( handles, labels, ncols=1, 
+                        loc='upper left', 
+                         borderaxespad=0.,
+                        #mode='expand',
+                        bbox_to_anchor=(0.1,0.98),
+                        title='model id')
         
         """not working.. not sure how to adjust the subplots
         fig.subplots_adjust(top=0.2)"""
