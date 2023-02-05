@@ -513,14 +513,17 @@ class AggSession1F(Plotr, AggSession1):
                         grp_colns=['model_id', 'sector_attribute'],  # coln for xaxis division (matrix rows)
                         
                         # style control
-
+                        logger=None,
                         ** kwargs
                         ):
-        """plot multiple boxes of errors"""
+        """group plotting of get_eA_box_fig (matrix of box plots showing error metrics by model id)
+        
+         """
         #=======================================================================
         # defaults
         #=======================================================================
-        log = self.logger.getChild('plot_eA_box')
+        if logger is None: logger=self.logger
+        log = logger.getChild('plot_eA_box')
         vidnm = self.vidnm
         xcn, ycn = self.xcn, self.ycn
         #=======================================================================
@@ -542,16 +545,7 @@ class AggSession1F(Plotr, AggSession1):
         # move the vid to the index
         dx1 = dxcol.T.unstack(level=vidnm).T.swaplevel(axis=0).sort_index(level=0)
         
-        # calc each
-        #=======================================================================
-        # d = dict()
-        # for stat in ['mean', 'min', 'max']:
-        #     d[stat] = getattr(dx1, stat)()
-        #     
-        # # add back
-        # # dx2 = dx1.append(pd.concat([pd.concat(d, axis=1).T], keys=['stats']))
-        # stats_df = pd.DataFrame.from_dict(d)
-        #=======================================================================
+ 
         
         #=======================================================================
         # get grouped stats-----
@@ -568,6 +562,7 @@ class AggSession1F(Plotr, AggSession1):
         assert len(l) == 0, l
         
         # add dummy indexer
+        """originally setup for plotting function gruops... not using this anymore"""
         if g0_coln is None:
             g0_coln = 'group0'
             vid_df[g0_coln] = True
@@ -582,7 +577,8 @@ class AggSession1F(Plotr, AggSession1):
                 out_dir = os.path.join(self.out_dir, 'plot_eA_box')
             else:
                 out_dir = os.path.join(self.out_dir, 'plot_eA_box', str(g0val))
-        
+                
+            
             for i, coln in enumerate(grp_colns  
                                      # ['all']
                                      ):
@@ -1160,7 +1156,10 @@ class AggSession1F(Plotr, AggSession1):
             xlab = 'model id',
             ylab = '$e_{total}$',
             **kwargs):
-        """get grouped (gser) bar plots per aggLevel + xvar 
+        """matrix of box plots showing error metrics by model id
+        
+        
+        get grouped (gser) bar plots per aggLevel + xvar 
         highlight
             aggLevel
             gropuVal
@@ -1189,8 +1188,9 @@ class AggSession1F(Plotr, AggSession1):
         xvar_l = mdex.get_level_values(0).unique().tolist()
         rows_l = mdex.get_level_values(cnames_d[row_coln]).unique().tolist()
         
+        """no.. using rcParams default
         if figsize is None:
-            figsize=(len(xvar_l) * 4, len(rows_l) * 4)
+            figsize=(len(xvar_l) * 4, len(rows_l) * 4)"""
         #=======================================================================
         # #setup figure
         #=======================================================================

@@ -89,13 +89,18 @@ def _pipe_funcs_synthX(ses, fp_d, vid_l, legend=True):
     """pipeline for plot_matrix_funcs_synthX
     
     todo: add this to the class"""
+    plt.close('all')
+    #===========================================================================
+    # load
+    #===========================================================================
+    
     if not 'rl_xm_stats_dxcol' in fp_d:
         dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
     else:
         dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol']).loc[idx[vid_l, :, :, :], :]
-    #=======================================================================
+ 
     # #load vfuncs
-    #=======================================================================
+ 
     if not 'f_serx' in fp_d:
         f_serx = ses.load_vfunc_ddf(vid_l)
     else:
@@ -103,7 +108,7 @@ def _pipe_funcs_synthX(ses, fp_d, vid_l, legend=True):
     #=======================================================================
     # plot
     #=======================================================================
-    #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
+ 
     
     return  ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(32 * cm, 7 * cm),
                                          legend=legend)
@@ -164,14 +169,71 @@ def _pipe_rlDelta_xb(ses, fp_d, vid_l,
     #===========================================================================
     # #plot
     #===========================================================================
-    ses.plot_matrix_rlDelta_xb(serx_slice,
+     
+    
+    
+    return ses.plot_matrix_rlDelta_xb(serx_slice,
  
         color_d={3:'#d95f02', 37:'#1b9e77'}, # divergent for colobrlind
         legend=legend, output_format='png',
-        )  
+        ) 
+
+
+def _pipe_errorAreaBoxes(ses, fp_d, vid_l = [
+                #798,
+                 811, 
+                 49,
+                 ],
+                 aggLevel_l=[5, 100],
+                 ):
+    """pipeline for plot_eA_box (get_eA_box_fig)
+        (matrix of box plots showing error metrics by model id)
     
+    TODO: add this to session
+    remove plot_eA_box and just call get_eA_box_fig directly
+    """
+    log = ses.logger.getChild('errorAreaBoxes')
+    plt.close('all')
+    #=======================================================================
+    # load
+    #=======================================================================
+    # xmean RL values per AggLevel
+    rl_dxcol = pd.read_pickle(fp_d['rl_dxcol'])
+    mdex = rl_dxcol.columns
     
-    return rl_dxcol, serx_slice, vid_df
+    # function meta
+    vid_df = ses.build_vid_df(vid_l=list(mdex.unique('df_id')), write=False, write_model_summary=True)  # vfunc data
+    log.info('loaded %i models from %i libraries' % (len(vid_l), len(vid_df['model_id'].unique())))
+    
+    if 'errArea_dxcol' in fp_d:
+        errArea_dxcol = pd.read_pickle(fp_d['errArea_dxcol'])
+    else:
+        errArea_dxcol = ses.build_model_metrics(dxcol=rl_dxcol)  # see AggSession1F.calc_areas()
+    #=======================================================================
+    # prep data
+    #=======================================================================
+    serx = errArea_dxcol.unstack()
+    # add model_id to idnex
+    serx.index = serx.index.join(pd.MultiIndex.from_frame(vid_df['model_id'].reset_index())).reorder_levels(['model_id', 'df_id', 'xvar', 'aggLevel', 'errArea_type'])
+    serx = serx.sort_index(sort_remaining=True)
+    
+    if aggLevel_l is None:
+        aggLevel_l = serx.index.unique('aggLevel').tolist()
+        
+    #slice to the error metric of interest
+    errArea_dxcol1=errArea_dxcol.loc[['total'],idx[:, :, aggLevel_l]]
+    #=======================================================================
+    # plot
+    #=======================================================================
+ 
+    # # set of box plots for area errors, on different groups
+ 
+    return ses.plot_eA_box(dxcol=errArea_dxcol1, vid_df=vid_df,
+        grp_colns=['model_id'],
+        #figsize=(17 * cm, 11 * cm),
+        sharex='all', sharey='all', add_subfigLabel=False, set_ax_title=False,
+        ylab='$e$',
+        ylims=(-21, 21), logger=log)
 
 
 def workflow_plotting(
@@ -200,8 +262,7 @@ def workflow_plotting(
                  ]
         
         #_pipe_funcs_synthX(ses, fp_d, vid_l, legend=False)
-        plt.close('all')
- 
+  
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
@@ -211,7 +272,7 @@ def workflow_plotting(
                  49,
                  ]
                 
-        #rl_dxcol, serx, vid_df = _pipe_rlDelta_xb(ses, fp_d, vid_l, legend=True)
+        #_pipe_rlDelta_xb(ses, fp_d, vid_l, legend=True)
  
         
         
@@ -219,45 +280,13 @@ def workflow_plotting(
         #=======================================================================
         # error area---------
         #=======================================================================
-        if 'errArea_dxcol' in fp_d:
-            errArea_dxcol = pd.read_pickle(fp_d['errArea_dxcol'])
-        else:
-            #see AggSession1F.calc_areas()
-            errArea_dxcol = ses.build_model_metrics(dxcol=rl_dxcol)
-        
-        #=======================================================================
-        # prep data
-        #=======================================================================
-        serx = errArea_dxcol.unstack() 
-        #add model_id to idnex        
-        serx.index = serx.index.join(
-            pd.MultiIndex.from_frame(vid_df['model_id'].reset_index())
-            ).reorder_levels(['model_id', 'df_id', 'xvar', 'aggLevel', 'errArea_type']
-                             )
-        serx = serx.sort_index(sort_remaining=True)
-        #=======================================================================
-        # plot
-        #=======================================================================
-        
-        #ses.plot_matrix_rlDelta_xb(serx)
-        #=======================================================================
-        # # set of box plots for area errors, on different groups
-        #======================================================================= 
-        #get_eA_box_fig()
-        ses.plot_eA_box(dxcol=errArea_dxcol.loc[['total'], :], vid_df=vid_df,
-                        grp_colns=['model_id'],
-                        figsize=(17 * cm, 11 * cm),
-                        sharex='all', sharey='all', add_subfigLabel=True, set_ax_title=False,
-                        ylab = '$e$',
-                        ylims=(-21, 21),
-                        )
-        
-        plt.close('all')
-        
+        _pipe_errorAreaBoxes(ses, fp_d, vid_l = [
+                #798,
+                 811, 
+                 49,
+                 ])        
         
  
-        # per-model bar plots of error area at different aggLevels and xvars
-        #ses.plot_eA_bars()
         
         #=======================================================================
         # write stats
