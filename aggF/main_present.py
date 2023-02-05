@@ -15,10 +15,8 @@ import os, datetime, math, pickle, copy, logging, sys
 import pandas as pd
 import numpy as np
  
-
-import scipy.stats 
  
-print('loaded scipy: %s'%scipy.__version__)
+ 
 
 start = datetime.datetime.now()
 print('start at %s' % start)
