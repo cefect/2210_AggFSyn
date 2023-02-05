@@ -80,35 +80,43 @@ print('loaded matplotlib %s'%matplotlib.__version__)
 #===============================================================================
 # custom imports
 #===============================================================================
-from aggF.scripts import AggSession1F, view
+ 
 from aggF.da import Session_AggF
         
         
  
-def _run_funcs_synthX(ses, fp_d, vid_l):
-    """todo: add this to the class"""
+def _pipe_funcs_synthX(ses, fp_d, vid_l, legend=True):
+    """pipeline for plot_matrix_funcs_synthX
+    
+    todo: add this to the class"""
     if not 'rl_xm_stats_dxcol' in fp_d:
         dx = ses.get_rl_xm_stats_dxcol(fp_d['rl_xmDisc_dxcol'], vid_l, write=True)
     else:
         dx = pd.read_pickle(fp_d['rl_xm_stats_dxcol']).loc[idx[vid_l, :, :, :], :]
-#=======================================================================
-# #load vfuncs
-#=======================================================================
+    #=======================================================================
+    # #load vfuncs
+    #=======================================================================
     if not 'f_serx' in fp_d:
         f_serx = ses.load_vfunc_ddf(vid_l)
     else:
         f_serx = pd.read_pickle(fp_d['f_serx']).loc[idx[vid_l, :]]
-#=======================================================================
-# plot
-#=======================================================================
-#vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
-    ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, 
-        figsize=(32 * cm, 7 * cm))
-    return  
+    #=======================================================================
+    # plot
+    #=======================================================================
+    #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
+    
+    return  ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(32 * cm, 7 * cm),
+                                         legend=legend)
 
 
-def _run_rlDelta_xb(ses, fp_d, vid_l, 
-                    aggLevel_l=[5, 100],):
+def _pipe_rlDelta_xb(ses, fp_d, vid_l, 
+                    aggLevel_l=[5, 100],
+                    legend=True):
+    """Pipeline for plot_matrix_rlDelta_xb
+    
+    
+    """
+    plt.close('all')
     log = ses.logger.getChild('rlDelta')
     #=======================================================================
     # load
@@ -153,18 +161,23 @@ def _run_rlDelta_xb(ses, fp_d, vid_l,
     log.info('for models\n    %s' % serx_slice.index.unique('model_id'))
     
     
-    #plot
+    #===========================================================================
+    # #plot
+    #===========================================================================
     ses.plot_matrix_rlDelta_xb(serx_slice,
-                               # figsize=(17 * cm, 11 * cm), 
-        color_d={3:'#d95f02', 37:'#1b9e77'},
-        legend=True, output_format='svg',
-        )  # divergent for colobrlind
+ 
+        color_d={3:'#d95f02', 37:'#1b9e77'}, # divergent for colobrlind
+        legend=legend, output_format='png',
+        )  
+    
+    
     return rl_dxcol, serx_slice, vid_df
 
 
-def plot_aggF_errs(
+def workflow_plotting(
         fp_d={},
         **kwargs):
+    """generic workflow for all the plots"""
     
     with Session_AggF(
         logger = logging.getLogger('r'),output_format=output_format,add_stamp=add_stamp,
@@ -175,37 +188,34 @@ def plot_aggF_errs(
         # defaults
         #=======================================================================
         log = ses.logger.getChild('r')
-        
-        #=======================================================================
-        # data explore
-        #=======================================================================
-        #=======================================================================
-        # dxcol_xvals = pd.read_pickle(fp_d['rl_xmDisc_xvals']) #raw xamples
-        # dxcol = pd.read_pickle(fp_d['rl_xmDisc_dxcol']) #raw xamples
-        #=======================================================================
-        
+ 
         #=======================================================================
         # dfunc vs. agg RL------
         #=======================================================================
- 
+        """plotting individually"""
         vid_l = [
-                798,
-                 #811, 
-                 49,
+                #798,
+                 811, 
+                 #49,
                  ]
         
-        #_run_funcs_synthX(ses, fp_d, vid_l)
+        #_pipe_funcs_synthX(ses, fp_d, vid_l, legend=False)
         plt.close('all')
-         
+ 
         #=======================================================================
         # rl mean vs. xb--------
         #=======================================================================
-        rl_dxcol, serx, vid_df = _run_rlDelta_xb(ses, fp_d, vid_l)
+        vid_l = [
+                #798,
+                 811, 
+                 49,
+                 ]
+                
+        #rl_dxcol, serx, vid_df = _pipe_rlDelta_xb(ses, fp_d, vid_l, legend=True)
+ 
+        
         
  
-        plt.close('all')
-        
-        return
         #=======================================================================
         # error area---------
         #=======================================================================
@@ -268,7 +278,7 @@ def plot_aggF_errs(
  
     
 def all_r0_plot(**kwargs):
-    return plot_aggF_errs(
+    return workflow_plotting(
         run_name='r0_present',
         fp_d = {        
                 'rl_xmDisc_dxcol':  r'C:\LS\10_IO\2112_Agg\outs\agg1F\r0_all\20220205\working\aggErr1_r2_0104_rl_xmDisc_dxcol.pickle',
