@@ -323,7 +323,7 @@ def plot_aggF_errs(
         #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
         
         
-        #ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
+        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
         plt.close('all')
         #=======================================================================
         # rl mean vs. xb--------
