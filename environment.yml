@@ -2,6 +2,7 @@ name: funcAgg
 channels:
   - conda-forge
 dependencies:
+  - osmium-tool
   - affine=2.3.1=pyhd8ed1ab_0
   - attrs=22.1.0=pyh71513ae_1
   - blosc=1.21.1=h74325e0_3
@@ -188,4 +189,9 @@ dependencies:
   - zict=2.2.0=pyhd8ed1ab_0
   - zlib=1.2.12=hcfcfb64_3
   - zstd=1.5.2=h7755175_4
+  - pip:
+    - osmium
+    - sphinx
+    - sphinxcontrib-autoprogram
+
  
