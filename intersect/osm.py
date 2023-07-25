@@ -305,7 +305,7 @@ if __name__ == '__main__':
         print(f'building for polygon %i'%row['id'])
         retrieve_osm_buildings('BGD', row.geometry.bounds)
         
-        break
+        #break
         
         
         
