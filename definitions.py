@@ -15,3 +15,6 @@ logcfg_file=r'C:\LS\09_REPOS\01_COMMON\coms\logger.conf'
 root_dir=r'C:\LS\10_IO\2112_Agg'
 wrk_dir=root_dir
  
+
+#add latex engine
+os.environ['PATH'] += r";C:\Users\cefect\AppData\Local\Programs\MiKTeX\miktex\bin\x64"

@@ -58,7 +58,7 @@ output_format='pdf'
 usetex=True
 add_stamp=False
  
-os.environ['PATH'] += r";C:\Users\cefect\AppData\Local\Programs\MiKTeX\miktex\bin\x64"
+
 
 cm = 1/2.54
 import matplotlib
@@ -294,7 +294,7 @@ def plot_aggF_errs(
         #=======================================================================
         
         #=======================================================================
-        # dfunc vs. agg RL------
+        # dfunc vs. agg RL (Figure 1)------
         #=======================================================================
         #=======================================================================
         # load and prep synthetic loss data
@@ -320,13 +320,15 @@ def plot_aggF_errs(
         #=======================================================================
         # plot
         #=======================================================================
-        #vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
-        
-        
-        #ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
+        vid_df = ses.build_vid_df(vid_l=vid_l,write=False, write_model_summary=False) #vfunc data
+         
+        #Figure 1
+        ses.plot_matrix_funcs_synthX(dx, f_serx=f_serx, write=True, figsize=(17 * cm, 12 * cm))
         plt.close('all')
+        
+        return
         #=======================================================================
-        # rl mean vs. xb--------
+        # rl mean vs. xb (Figure 2)--------
         #=======================================================================
         #=======================================================================
         # load        
@@ -372,6 +374,7 @@ def plot_aggF_errs(
         log.info('for models\n    %s'%serx.index.unique('model_id'))
         
         
+        #Figure 2
         ses.plot_matrix_rlDelta_xb(serx, figsize=(17 * cm, 11 * cm),
                                    color_d={3: '#d95f02', 37: '#1b9e77'}, #divergent for colobrlind
                                    )

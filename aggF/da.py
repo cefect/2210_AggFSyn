@@ -47,7 +47,14 @@ class Plot_funcs_synthX(object):
                                  f_serx=None,figsize=None,
                                  output_fig_kwargs=dict(),
                                  **kwargs):
-        """plot functions and aggregated RL values"""
+        """plot functions and aggregated RL values
+        
+        
+        Figure 1. Relative loss vs. anchor depth (xb) for three example functions 
+        and three synthetic depth generation variances (σ2) computed against the depth values 
+        and aggregation (s) described in the text. Shaded areas show the corresponding q95 and q5 
+        for the RL computed for each level of aggregation
+        """
         
         log, tmp_dir, out_dir, _, _, write = self._func_setup('p_fs_rlVx', **kwargs)
         
@@ -66,6 +73,11 @@ class Plot_funcs_synthX(object):
         #=======================================================================
         
         handles, labels = ax_d[49][1.0].get_legend_handles_labels() #get legned info 
+        
+        #over-ride first label
+        labels[0] = '$s=1$'
+        
+        
         fig.legend( handles, labels, ncols=2, loc='upper right', 
                      borderaxespad=0.,
                     #mode='expand',
@@ -272,13 +284,19 @@ class Plot_rlDelta_xb(object):
                                color_d=None,
                                #plot_kwargs_lib=None,
                                #plot_kwargs={'linestyle':'solid', 'marker':None, 'markersize':7, 'alpha':0.8, 'linewidth':0.5},
-                               output_format='png', #too slow otherwise
+                               output_format=None, #too slow otherwise
                                output_fig_kwargs=dict(),
                                
                                **kwargs):
-        """matrix plot of all functions rlDelta vs. xb"""
+        """matrix plot of all functions rlDelta vs. xb
+        
+        Figure 2. Relative loss error for three levels of aggregation (s)
+         and three synthetic depth families (σ2) for a selection of the models
+        """
         
         log, tmp_dir, out_dir, _, _, write = self._func_setup('rlErr_xb', **kwargs)
+        
+        if output_format is None: output_format=self.output_format
         
         #=======================================================================
         # extract data
@@ -337,10 +355,11 @@ class Plot_rlDelta_xb(object):
                 xar, yar = gsx1.index.get_level_values(map_d['x']).values, gsx1.values
  
                 ax.plot(xar, yar, color=color_d[gk1[0]],label=None,zorder=1,
+                        rasterized=True,
                         **{'linestyle':'none','linewidth':0.1,
                             #'linestyle': (0, (1, 30)), 
                             'marker':'o','markersize':2,'markeredgewidth':0.1,'fillstyle':'none',
-                            'alpha':0.1, }
+                            'alpha':0.3, }
                         )
                 
             #===================================================================
