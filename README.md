@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/559527057.svg)](https://zenodo.org/doi/10.5281/zenodo.10810420)
 # Flood damage model bias caused by aggregation
 
 Scripts for computing potential flood damage function error from aggregation against synthetically produced depths. 
